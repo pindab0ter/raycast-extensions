@@ -176,7 +176,10 @@ export default function hueBridgeMachine(
           id: "discoverBridgeUsingNupnp",
           src: discoverBridgeUsingNupnp,
           onDone: {
-            actions: assign({ bridgeIpAddress: (context, event) => event.data }),
+            actions: assign({
+              bridgeIpAddress: (context, event) => event.data.ipAddress,
+              bridgeId: (context, event) => event.data.id,
+            }),
             target: "linkWithBridge",
           },
           onError: {
@@ -190,7 +193,10 @@ export default function hueBridgeMachine(
           id: "discoverBridgeUsingMdns",
           src: discoverBridgeUsingMdns,
           onDone: {
-            actions: assign({ bridgeIpAddress: (context, event) => event.data }),
+            actions: assign({
+              bridgeIpAddress: (context, event) => event.data.ipAddress,
+              bridgeId: (context, event) => event.data.id,
+            }),
             target: "linkWithBridge",
           },
           onError: {
@@ -217,11 +223,10 @@ export default function hueBridgeMachine(
         invoke: {
           id: "linking",
           src: async (context) => {
-            console.log("Linking with Hue Bridge and saving configuration…");
+            if (context.bridgeIpAddress === undefined) throw Error("No bridge IP address");
+            if (context.bridgeId === undefined) throw Error("No bridge ID");
 
-            if (context.bridgeIpAddress === undefined) {
-              throw Error("No bridge IP address");
-            }
+            console.log("Linking with Hue Bridge and saving configuration…");
 
             // TODO: Test cases:
             //  With manual IP
@@ -230,7 +235,7 @@ export default function hueBridgeMachine(
             //  With manual invalid username
             //  With manual IP and username
             //  With manual invalid IP and username
-            const bridgeConfig = await linkWithBridge(context.bridgeIpAddress, context.bridgeUsername);
+            const bridgeConfig = await linkWithBridge(context.bridgeIpAddress, context.bridgeId);
 
             const hueClient = await createHueClient(
               bridgeConfig,
@@ -295,19 +300,19 @@ export default function hueBridgeMachine(
             {
               target: "linking",
               actions: assign({
-                bridgeUsername: (context, event) => getPreferenceValues().bridgeUsername,
-                bridgeId: (context, event) => undefined,
-                bridgeConfig: (context, event) => undefined,
+                bridgeUsername: () => getPreferenceValues().bridgeUsername,
+                bridgeId: () => undefined,
+                bridgeConfig: () => undefined,
               }),
               cond: () => getPreferenceValues().bridgeIpAddress !== undefined,
             },
             {
               target: "discoveringUsingPublicApi",
               actions: assign({
-                bridgeIpAddress: (context, event) => undefined,
-                bridgeUsername: (context, event) => getPreferenceValues().bridgeUsername,
-                bridgeId: (context, event) => undefined,
-                bridgeConfig: (context, event) => undefined,
+                bridgeIpAddress: () => undefined,
+                bridgeUsername: () => getPreferenceValues().bridgeUsername,
+                bridgeId: () => undefined,
+                bridgeConfig: () => undefined,
               }),
             },
           ],
