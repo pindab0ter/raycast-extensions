@@ -17,6 +17,7 @@ import React from "react";
 import createHueClient from "./createHueClient";
 import { discoverBridgeUsingMdns, discoverBridgeUsingNupnp } from "../helpers/hueNetworking";
 import { linkWithBridge } from "./linkWithBridge";
+import Style = Toast.Style;
 
 export type HueBridgeState = State<
   HueContext,
@@ -251,8 +252,10 @@ export default function hueBridgeMachine(
           },
           onError: {
             actions: (_, event) => {
-              new Toast({ title: "Failed to link with bridge", message: event.data }).show().then();
               console.error(event.data);
+              new Toast({ title: "Failed to link with bridge", message: event.data, style: Style.Failure })
+                .show()
+                .then();
             },
             target: "failedToLink",
           },
