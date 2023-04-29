@@ -1,32 +1,32 @@
 import { useMemo, useState } from "react";
 import { createGradientPngUri } from "../helpers/createGradientUri";
-import { PngUri, PngUriCache, Id, Palette } from "../lib/types";
+import { RoomIcon, Id, PngUri, PngUriCache } from "../lib/types";
 import { Cache } from "@raycast/api";
 
-const gradientCache = new Cache({ namespace: "hue-scene-gradients" });
+const gradientCache = new Cache({ namespace: "hue-room-icons" });
 
-export default function useGradientUris(idsToPalettes: Map<Id, Palette>, width: number, height: number) {
+export default function useGradientUris(idsToRoomIcons: Map<Id, RoomIcon>, width: number, height: number) {
   const [gradientUris, setGradientUris] = useState<PngUriCache>(new Map<Id, PngUri>());
 
   useMemo(() => {
-    idsToPalettes.forEach((palette, id) => {
-      if (palette.length === 0) {
+    idsToRoomIcons.forEach((roomIcon, id) => {
+      if (roomIcon.palette.length === 0) {
         return;
       }
 
-      const key = `${palette.join("_")}_${width}x${height}`;
+      const key = `${roomIcon.palette.join("_")}${roomIcon.selected ? "_selected" : ""}_${width}x${height}`;
       const cached = gradientCache.get(key);
 
       if (cached) {
         setGradientUris((gradients) => new Map(gradients).set(id, JSON.parse(cached)));
       } else {
-        createGradientPngUri(palette, width, height).then((gradientUri) => {
+        createGradientPngUri(roomIcon, width, height).then((gradientUri) => {
           gradientCache.set(key, JSON.stringify(gradientUri));
           setGradientUris((gradients) => new Map(gradients).set(id, gradientUri));
         });
       }
     });
-  }, [idsToPalettes]);
+  }, [idsToRoomIcons]);
 
   return { gradientUris };
 }

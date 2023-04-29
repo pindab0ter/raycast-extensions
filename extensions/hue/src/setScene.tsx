@@ -1,5 +1,5 @@
 import { Action, ActionPanel, Grid, Icon, Toast, useNavigation } from "@raycast/api";
-import { Group, Id, Palette, PngUri, PngUriCache, Scene } from "./lib/types";
+import { Group, Id, PngUri, PngUriCache, RoomIcon, Scene } from "./lib/types";
 import UnlinkAction from "./components/UnlinkAction";
 import ManageHueBridge from "./components/ManageHueBridge";
 import { SendHueMessage, useHue } from "./hooks/useHue";
@@ -13,19 +13,29 @@ import { getTransitionTimeInMs } from "./helpers/raycast";
 import Style = Toast.Style;
 
 // Exact dimensions of a 16:9 Raycast 5 column grid item.
-const GRID_ITEM_WIDTH = 271;
-const GRID_ITEM_HEIGHT = 153;
+const GRID_ITEM_WIDTH = 542;
+const GRID_ITEM_HEIGHT = 306;
 
 export default function SetScene(props: { group?: Group; useHue?: ReturnType<typeof useHue> }) {
   const { hueBridgeState, sendHueMessage, isLoading, rooms, zones, scenes } = props.useHue ?? useHue();
-  const [palettes, setPalettes] = useState(new Map<Id, Palette>([]));
-  const { gradientUris } = useGradients(palettes, GRID_ITEM_WIDTH, GRID_ITEM_HEIGHT);
+  const [roomIcons, setRoomIcons] = useState(new Map<Id, RoomIcon>([]));
+  const { gradientUris } = useGradients(roomIcons, GRID_ITEM_WIDTH, GRID_ITEM_HEIGHT);
   const groupTypes = [rooms, zones];
   const { pop } = useNavigation();
   const isSubView = props.group !== undefined;
 
   useMemo(() => {
-    setPalettes(new Map<Id, Palette>(scenes.map((scene) => [scene.id, getColorsFromScene(scene)])));
+    setRoomIcons(
+      new Map(
+        scenes.map((scene) => [
+          scene.id,
+          {
+            palette: getColorsFromScene(scene),
+            selected: scene.status.active !== "inactive",
+          },
+        ])
+      )
+    );
   }, [scenes]);
 
   const manageHueBridgeElement: JSX.Element | null = ManageHueBridge(hueBridgeState, sendHueMessage);
@@ -43,6 +53,7 @@ export default function SetScene(props: { group?: Group; useHue?: ReturnType<typ
         navigationTitle={`Set Scene for ${props.group.metadata.name}`}
         isLoading={isLoading}
         aspectRatio="16/9"
+        fit={Grid.Fit.Fill}
         filtering={{ keepSectionOrder: true }}
       >
         <Grid.Section title={group.metadata.name}>
@@ -66,7 +77,7 @@ export default function SetScene(props: { group?: Group; useHue?: ReturnType<typ
     );
   } else {
     return (
-      <Grid isLoading={isLoading} aspectRatio="16/9" filtering={{ keepSectionOrder: true }}>
+      <Grid isLoading={isLoading} aspectRatio="16/9" fit={Grid.Fit.Fill} filtering={{ keepSectionOrder: true }}>
         {groupTypes.map((groupType: Group[]): JSX.Element[] => {
           return groupType.map((group: Group): JSX.Element => {
             const groupScenes =
@@ -160,6 +171,8 @@ async function handleSetScene(hueClient: HueClient | undefined, group: Group, sc
 
   try {
     if (hueClient === undefined) throw new Error("Hue client not initialized.");
+
+    // TODO: Optimistic update scene status
 
     await hueClient.updateScene(scene, {
       recall: {
