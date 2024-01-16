@@ -740,6 +740,130 @@ export type SceneRequest = {
   };
 };
 
+export type WeekDay = "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday";
+
+export type ResourceType =
+  | "device"
+  | "bridge_home"
+  | "room"
+  | "zone"
+  | "light"
+  | "button"
+  | "relative_rotary"
+  | "temperature"
+  | "light_level"
+  | "motion"
+  | "camera_motion"
+  | "entertainment"
+  | "contact"
+  | "tamper"
+  | "grouped_light"
+  | "device_power"
+  | "zigbee_bridge_connectivity"
+  | "zigbee_connectivity"
+  | "zgp_connectivity"
+  | "bridge"
+  | "zigbee_device_discovery"
+  | "homekit"
+  | "matter"
+  | "matter_fabric"
+  | "scene"
+  | "entertainment_configuration"
+  | "public_image"
+  | "auth_v1"
+  | "behavior_script"
+  | "behavior_instance"
+  | "geofence"
+  | "geofence_client"
+  | "geolocation"
+  | "smart_scene";
+
+export type SmartScene = {
+  /**
+   * Type of the supported resources
+   */
+  type: "smart_scene";
+
+  /**
+   * Unique identifier representing a specific resource instance
+   */
+  id: string;
+
+  /**
+   * Clip v1 resource identifier
+   */
+  id_v1?: string;
+
+  metadata: {
+    /**
+     * Human readable name of a resource
+     */
+    name: string;
+
+    /**
+     * Reference with unique identifier for the image representing the scene
+     * only accepting “rtype”: “public_image” on creation
+     */
+    image?: ResourceIdentifier;
+
+    /**
+     * Application specific data. Free format string.
+     */
+    appdata?: string;
+  };
+
+  /**
+   * Group associated with this Scene. All services in the group are part of this scene.
+   * If the group is changed the scene is update (e.g. light added/removed)
+   */
+  group: ResourceIdentifier;
+
+  /**
+   * Information on what is the light state for every timeslot of the day
+   */
+  week_timeslots: {
+    timeslots: {
+      start_time: {
+        kind: "time" | "sunset";
+
+        /**
+         * this property is only used when property “kind” is “time”
+         */
+        time?: {
+          hour: number;
+          minute: number;
+          second: number;
+        };
+      };
+
+      /**
+       * The identifier of the scene to recall
+       */
+      target: ResourceIdentifier;
+    }[];
+
+    recurrence: WeekDay[];
+  }[];
+
+  /**
+   * Duration of the transition from on one timeslot's scene to the other (defaults to 60000ms)
+   */
+  transition_duration: number;
+
+  /**
+   * The active timeslot in execution
+   */
+  active_timeslot?: {
+    timeslot_id: number;
+    weekday: WeekDay;
+  };
+
+  /**
+   * the current state of the smart scene. The default state is `inactive` if no `recall` is provided
+   */
+  state: "active" | "inactive";
+};
+
 export type Group = {
   /**
    * Type of the supported resources
