@@ -1,7 +1,7 @@
 import { assign, fromPromise, setup } from "xstate";
 import { getPreferenceValues, LocalStorage, Toast } from "@raycast/api";
 import HueClient from "./HueClient";
-import { BridgeConfig, GroupedLight, Light, Room, Scene, Zone } from "./types";
+import { BridgeConfig, GroupedLight, Light, Room, Scene, SmartScene, Zone } from "./types";
 import React from "react";
 import { discoverBridgeUsingHuePublicApi, discoverBridgeUsingMdns } from "../helpers/hueNetworking";
 import net from "net";
@@ -19,6 +19,7 @@ export default function hueBridgeMachine(
   setRooms: React.Dispatch<React.SetStateAction<Room[]>>,
   setZones: React.Dispatch<React.SetStateAction<Zone[]>>,
   setScenes: React.Dispatch<React.SetStateAction<Scene[]>>,
+  setSmartScenes: React.Dispatch<React.SetStateAction<SmartScene[]>>,
 ) {
   return setup({
     actors: {
@@ -82,6 +83,7 @@ export default function hueBridgeMachine(
           setRooms,
           setZones,
           setScenes,
+          setSmartScenes,
         );
 
         new Toast({ title: "" }).hide().then();
@@ -108,6 +110,7 @@ export default function hueBridgeMachine(
             setRooms,
             setZones,
             setScenes,
+            setSmartScenes,
           );
 
           return { bridgeConfig, hueClient };

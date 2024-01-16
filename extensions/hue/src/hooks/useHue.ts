@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useCachedState } from "@raycast/utils";
-import { GroupedLight, Light, Room, Scene, Zone } from "../lib/types";
+import { GroupedLight, Light, Room, Scene, SmartScene, Zone } from "../lib/types";
 import { useHueBridgeMachine } from "./useHueBridgeMachine";
 import { Toast } from "@raycast/api";
 import Style = Toast.Style;
@@ -15,6 +15,7 @@ export function useHue() {
   const [rooms, setRooms] = useCachedState("rooms", [] as Room[]);
   const [zones, setZones] = useCachedState("zones", [] as Zone[]);
   const [scenes, setScenes] = useCachedState("scenes", [] as Scene[]);
+  const [smartScenes, setSmartScenes] = useCachedState("smartScenes", [] as SmartScene[]);
 
   const { hueBridgeState, sendHueMessage } = useHueBridgeMachine(
     setLights,
@@ -22,6 +23,7 @@ export function useHue() {
     setRooms,
     setZones,
     setScenes,
+    setSmartScenes,
   );
 
   useEffect(() => {
@@ -39,6 +41,7 @@ export function useHue() {
           setRooms(await hueBridgeState.context.hueClient.getRooms());
           setZones(await hueBridgeState.context.hueClient.getZones());
           setScenes(await hueBridgeState.context.hueClient.getScenes());
+          setSmartScenes(await hueBridgeState.context.hueClient.getSmartScenes());
         } catch (error) {
           const message = error instanceof Error ? error.message : (error as string);
           new Toast({
@@ -69,5 +72,7 @@ export function useHue() {
     setZones,
     scenes,
     setScenes,
+    smartScenes,
+    setSmartScenes,
   };
 }

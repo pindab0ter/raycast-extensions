@@ -17,7 +17,7 @@ const GRID_ITEM_WIDTH = 271;
 const GRID_ITEM_HEIGHT = 153;
 
 export default function SetScene(props: { group?: Group; useHue?: ReturnType<typeof useHue> }) {
-  const { hueBridgeState, sendHueMessage, isLoading, rooms, zones, scenes } = props.useHue ?? useHue();
+  const { hueBridgeState, sendHueMessage, isLoading, rooms, zones, scenes, smartScenes } = props.useHue ?? useHue();
   const [palettes, setPalettes] = useState(new Map<Id, Palette>([]));
   const { gradientUris } = useGradients(palettes, GRID_ITEM_WIDTH, GRID_ITEM_HEIGHT);
   const groupTypes = [rooms, zones];
@@ -27,6 +27,10 @@ export default function SetScene(props: { group?: Group; useHue?: ReturnType<typ
   useMemo(() => {
     setPalettes(new Map<Id, Palette>(scenes.map((scene) => [scene.id, getColorsFromScene(scene)])));
   }, [scenes]);
+
+  if (smartScenes) {
+    console.log(smartScenes.map((smartScene) => smartScene));
+  }
 
   const manageHueBridgeElement: React.JSX.Element | null = ManageHueBridge(hueBridgeState, sendHueMessage);
   if (manageHueBridgeElement !== null) return manageHueBridgeElement;

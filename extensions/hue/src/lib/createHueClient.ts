@@ -1,6 +1,6 @@
 import { ClientHttp2Session, connect, sensitiveHeaders } from "http2";
 import React from "react";
-import { BridgeConfig, GroupedLight, Light, Room, Scene, Zone } from "./types";
+import { BridgeConfig, GroupedLight, Light, Room, Scene, SmartScene, Zone } from "./types";
 import fs from "fs";
 import { environment } from "@raycast/api";
 import dns from "dns";
@@ -16,6 +16,7 @@ export default async function createHueClient(
   setRooms?: React.Dispatch<React.SetStateAction<Room[]>>,
   setZones?: React.Dispatch<React.SetStateAction<Zone[]>>,
   setScenes?: React.Dispatch<React.SetStateAction<Scene[]>>,
+  setSmartScenes?: React.Dispatch<React.SetStateAction<SmartScene[]>>,
 ) {
   const http2Session = await new Promise<ClientHttp2Session>((resolve, reject) => {
     const caCertificate = fs.readFileSync(path.join(environment.assetsPath, "huebridge_cacert.pem"));
@@ -96,5 +97,14 @@ export default async function createHueClient(
     });
   });
 
-  return new HueClient(bridgeConfig, http2Session, setLights, setGroupedLights, setRooms, setZones, setScenes);
+  return new HueClient(
+    bridgeConfig,
+    http2Session,
+    setLights,
+    setGroupedLights,
+    setRooms,
+    setZones,
+    setScenes,
+    setSmartScenes,
+  );
 }
