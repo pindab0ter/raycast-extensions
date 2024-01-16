@@ -1,10 +1,10 @@
 import { Action, ActionPanel, Alert, confirmAlert, Detail, environment, Icon, Toast } from "@raycast/api";
-import { HueBridgeState } from "../lib/hueBridgeMachine";
 import { SendHueMessage } from "../hooks/useHue";
 import { pathToFileURL } from "url";
+import React from "react";
 import ActionStyle = Alert.ActionStyle;
 import Style = Toast.Style;
-import React from "react";
+import { HueBridgeMachineSnapshot } from "../lib/types";
 
 const successImagePath = pathToFileURL(`${environment.assetsPath}/bridge-success.png`).href;
 const failureImagePath = pathToFileURL(`${environment.assetsPath}/bridge-failure.png`).href;
@@ -80,7 +80,7 @@ You can remove your saved Hue Bridge by using the ‘Unlink Hue Bridge’ action
  * otherwise it will return null.
  */
 export default function ManageHueBridge(
-  hueBridgeState: HueBridgeState,
+  hueBridgeState: HueBridgeMachineSnapshot,
   sendHueMessage: SendHueMessage,
 ): React.JSX.Element | null {
   const unlinkSavedBridge = async () => {
@@ -96,8 +96,8 @@ export default function ManageHueBridge(
 
   switch (hueBridgeState.value) {
     case "loadingPreferences":
-    case "loadingCredentials":
-    case "discoveringUsingPublicApi":
+    case "loadingConfiguration":
+    case "discoveringUsingHuePublicApi":
     case "connected":
       return null;
     case "failedToLoadPreferences":
