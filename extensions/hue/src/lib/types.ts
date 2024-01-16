@@ -782,7 +782,7 @@ export type SmartScene = {
   /**
    * Type of the supported resources
    */
-  type: "smart_scene";
+  type?: "smart_scene";
 
   /**
    * Unique identifier representing a specific resource instance
@@ -862,6 +862,20 @@ export type SmartScene = {
    * the current state of the smart scene. The default state is `inactive` if no `recall` is provided
    */
   state: "active" | "inactive";
+};
+
+export type SmartSceneRequest = {
+  /**
+   * Type of the supported resources
+   */
+  type?: "smart_scene";
+
+  recall?: {
+    /**
+     * Activate will start the smart (24h) scene; deactivate will stop it
+     */
+    action?: "activate" | "deactivate";
+  };
 };
 
 export type Group = {
@@ -971,7 +985,7 @@ export type UpdateEvent = {
   /**
    * The data of the update event, represented as an array of API objects.
    */
-  data: Partial<Light | GroupedLight | Room | Zone | Scene>[];
+  data: Partial<Light | GroupedLight | Room | Zone | Scene | SmartScene>[];
 
   /**
    * A unique identifier for the update event, represented as a UUID string.
