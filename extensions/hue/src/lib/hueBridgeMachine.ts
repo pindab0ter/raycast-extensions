@@ -11,7 +11,7 @@ import { getBridgeConfig } from "./getBridgeConfig";
 import Style = Toast.Style;
 
 /**
- * @see https://stately.ai/viz/5dacdcc5-0f75-4620-9330-3455876b2e50
+ * @see https://stately.ai/registry/editor/fb75a44c-277d-49c0-932b-8b447a677ad3
  */
 export default function hueBridgeMachine(
   setLights: React.Dispatch<React.SetStateAction<Light[]>>,
@@ -243,9 +243,7 @@ export default function hueBridgeMachine(
         },
       },
 
-      connected: {
-        type: "final",
-      },
+      connected: {},
 
       failedToConnect: {
         on: {
