@@ -3,7 +3,7 @@ import { createPemString, getCertificate, getUsernameFromBridge } from "../helpe
 import fs from "fs";
 import { environment } from "@raycast/api";
 
-export async function linkWithBridge(
+export async function getBridgeConfig(
   bridgeIpAddress: string,
   bridgeId?: string,
   bridgeUsername?: string,
