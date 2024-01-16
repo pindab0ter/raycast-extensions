@@ -10,6 +10,8 @@
 // Non-Hue API types //
 ///////////////////////
 
+import hueBridgeMachine from "./hueBridgeMachine";
+
 export type Id = string | number;
 export type Palette = string[];
 export type LightIcon = { iconPath: string; color: string };
@@ -24,6 +26,8 @@ export type BridgeConfig = {
   certificateType: "self-signed" | "signed-by-hue-bridge-root-ca";
   certificate?: string;
 };
+
+export type HueBridgeMachineSnapshot = ReturnType<ReturnType<typeof hueBridgeMachine>["getInitialSnapshot"]>;
 
 export type ParsedUpdateEvent = { key: number; value: UpdateEvent };
 
