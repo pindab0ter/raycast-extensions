@@ -12,6 +12,7 @@ import {
   Scene,
   SceneRequest,
   SmartScene,
+  SmartSceneRequest,
   Zone,
 } from "./types";
 import { ClientHttp2Session, constants, IncomingHttpHeaders, IncomingHttpStatusHeader, sensitiveHeaders } from "http2";
@@ -113,6 +114,12 @@ export default class HueClient {
 
   public async updateScene(scene: Scene, properties: SceneRequest): Promise<any> {
     const response = await this.makeRequest("PUT", `/clip/v2/resource/scene/${scene.id}`, properties);
+
+    return response.data.data;
+  }
+
+  public async updateSmartScene(smartScene: SmartScene, properties: SmartSceneRequest): Promise<any> {
+    const response = await this.makeRequest("PUT", `/clip/v2/resource/smart_scene/${smartScene.id}`, properties);
 
     return response.data.data;
   }
@@ -235,7 +242,7 @@ export default class HueClient {
 
       this.setSmartScenes?.((scenes) => {
         const updatedSmartScenes = updateEvent.data.filter((resource) => {
-          return resource.type === "scene";
+          return resource.type === "smart_scene";
         }) as (Partial<SmartScene> & HasId)[];
         return scenes.replaceItems(updatedSmartScenes);
       });
