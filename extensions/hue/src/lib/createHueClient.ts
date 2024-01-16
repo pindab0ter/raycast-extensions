@@ -1,6 +1,6 @@
 import { ClientHttp2Session, connect, sensitiveHeaders } from "http2";
 import React from "react";
-import { BridgeConfig, GroupedLight, Light, Room, Scene, Zone } from "./types";
+import { BridgeConfig, GroupedLight, Light, Room, Scene, SmartScene, Zone } from "./types";
 import fs from "fs";
 import { environment } from "@raycast/api";
 import dns from "dns";
@@ -16,6 +16,7 @@ export default async function createHueClient(
   setRooms?: React.Dispatch<React.SetStateAction<Room[]>>,
   setZones?: React.Dispatch<React.SetStateAction<Zone[]>>,
   setScenes?: React.Dispatch<React.SetStateAction<Scene[]>>,
+  setSmartScenes?: React.Dispatch<React.SetStateAction<SmartScene[]>>,
 ) {
   const http2Session = await new Promise<ClientHttp2Session>((resolve, reject) => {
     let certificate: Buffer | undefined;
@@ -35,7 +36,7 @@ export default async function createHueClient(
      */
     const session = connect(`https://${bridgeConfig.id}`, {
       ca: certificate, // Either the bridge’s self-signed certificate or the Hue Bridge Root CA
-      checkServerIdentity: (hostname, cert) => {
+      checkServerIdentity: (_, cert) => {
         if (cert.subject.CN !== bridgeConfig.id) {
           throw new Error(
             "Server identity check failed. Certificate subject’s Common Name does not match the Bridge ID.",
@@ -94,5 +95,14 @@ export default async function createHueClient(
     });
   });
 
-  return new HueClient(bridgeConfig, http2Session, setLights, setGroupedLights, setRooms, setZones, setScenes);
+  return new HueClient(
+    bridgeConfig,
+    http2Session,
+    setLights,
+    setGroupedLights,
+    setRooms,
+    setZones,
+    setScenes,
+    setSmartScenes,
+  );
 }

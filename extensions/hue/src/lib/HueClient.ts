@@ -11,6 +11,7 @@ import {
   Room,
   Scene,
   SceneRequest,
+  SmartScene,
   Zone,
 } from "./types";
 import { ClientHttp2Session, constants, IncomingHttpHeaders, IncomingHttpStatusHeader, sensitiveHeaders } from "http2";
@@ -39,6 +40,7 @@ export default class HueClient {
   private readonly setRooms?: React.Dispatch<React.SetStateAction<Room[]>>;
   private readonly setZones?: React.Dispatch<React.SetStateAction<Zone[]>>;
   private readonly setScenes?: React.Dispatch<React.SetStateAction<Scene[]>>;
+  private readonly setSmartScenes?: React.Dispatch<React.SetStateAction<SmartScene[]>>;
   private readonly lightsQueue = new RateLimitedQueue(10);
   private readonly groupedLightsQueue = new RateLimitedQueue(1, 1);
 
@@ -50,6 +52,7 @@ export default class HueClient {
     setRooms?: React.Dispatch<React.SetStateAction<Room[]>>,
     setZones?: React.Dispatch<React.SetStateAction<Zone[]>>,
     setScenes?: React.Dispatch<React.SetStateAction<Scene[]>>,
+    setSmartScenes?: React.Dispatch<React.SetStateAction<SmartScene[]>>,
   ) {
     this.http2Session = http2Session;
     this.bridgeConfig = bridgeConfig;
@@ -58,6 +61,7 @@ export default class HueClient {
     this.setRooms = setRooms;
     this.setZones = setZones;
     this.setScenes = setScenes;
+    this.setSmartScenes = setSmartScenes;
     this.listenToEventSource();
   }
 
@@ -73,6 +77,11 @@ export default class HueClient {
 
   public async getScenes(): Promise<Scene[]> {
     const response = await this.makeRequest("GET", "/clip/v2/resource/scene");
+    return response.data.data;
+  }
+
+  public async getSmartScenes(): Promise<Scene[]> {
+    const response = await this.makeRequest("GET", "/clip/v2/resource/smart_scene");
     return response.data.data;
   }
 
@@ -222,6 +231,13 @@ export default class HueClient {
           return resource.type === "scene";
         }) as (Partial<Scene> & HasId)[];
         return scenes.replaceItems(updatedScenes);
+      });
+
+      this.setSmartScenes?.((scenes) => {
+        const updatedSmartScenes = updateEvent.data.filter((resource) => {
+          return resource.type === "scene";
+        }) as (Partial<SmartScene> & HasId)[];
+        return scenes.replaceItems(updatedSmartScenes);
       });
 
       // If the parser encounters a new JSON array, it will throw an error
