@@ -18,13 +18,14 @@ export default async function createHueClient(
   setScenes?: React.Dispatch<React.SetStateAction<Scene[]>>,
 ) {
   const http2Session = await new Promise<ClientHttp2Session>((resolve, reject) => {
-    let certificate: Buffer | undefined;
+    const caCertificate = fs.readFileSync(path.join(environment.assetsPath, "huebridge_cacert.pem"));
+    const selfSignedCertificate = bridgeConfig.selfSignedCertificate
+      ? Buffer.from(bridgeConfig.selfSignedCertificate, "utf-8")
+      : undefined;
 
-    if (bridgeConfig.certificateType === "self-signed" && bridgeConfig.certificate) {
-      certificate = Buffer.from(bridgeConfig.certificate, "utf-8");
-      console.log("Connecting to the Hue Bridge using it’s self-signed certificate…");
+    if (bridgeConfig.selfSignedCertificate !== undefined) {
+      console.log("Connecting to the Hue Bridge using its self-signed certificate…");
     } else {
-      certificate = fs.readFileSync(path.join(environment.assetsPath, "huebridge_cacert.pem"));
       console.log("Connecting to the Hue Bridge, checking it’s certificate against the Hue Bridge root CA…");
     }
 
@@ -34,19 +35,20 @@ export default async function createHueClient(
      * TLS is not permitted by RFC 6066.
      */
     const session = connect(`https://${bridgeConfig.id}`, {
-      ca: certificate, // Either the bridge’s self-signed certificate or the Hue Bridge Root CA
+      ca: caCertificate,
+      cert: selfSignedCertificate, // Use the self-signed certificate if it exists
       checkServerIdentity: (hostname, cert) => {
         if (cert.subject.CN !== bridgeConfig.id) {
           throw new Error(
             "Server identity check failed. Certificate subject’s Common Name does not match the Bridge ID.",
           );
         }
-        if (bridgeConfig.certificateType === "signed-by-hue-bridge-root-ca" && cert.issuer.CN !== "root-bridge") {
+        if (bridgeConfig.selfSignedCertificate === undefined && cert.issuer.CN !== "root-bridge") {
           throw new Error(
             "Server identity check failed. Certificate issuer’s Common Name does not match the expected value.",
           );
         }
-        if (bridgeConfig.certificateType === "self-signed" && cert.issuer.CN !== bridgeConfig.id) {
+        if (bridgeConfig.selfSignedCertificate !== undefined && cert.issuer.CN !== bridgeConfig.id) {
           throw new Error(
             "Server identity check failed. Certificate issuer’s Common Name does not match the Bridge ID.",
           );
