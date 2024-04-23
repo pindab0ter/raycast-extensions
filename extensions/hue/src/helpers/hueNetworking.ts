@@ -4,6 +4,9 @@ import * as https from "https";
 import { HueApiService, LinkResponse, MDnsService } from "../lib/types";
 import Bonjour from "bonjour-service";
 import { isIPv4 } from "net";
+import fs from "fs";
+import * as path from "node:path";
+import { environment } from "@raycast/api";
 
 /**
  * Ignoring that you could have more than one Hue Bridge on a network as this is unlikely in 99.9% of users situations
@@ -126,17 +129,20 @@ function validateBridgeCertificate(peerCertificate: PeerCertificate, bridgeId?: 
 
 export async function getUsernameFromBridge(
   ipAddress: string,
-  bridgeId: string | undefined = undefined,
-  certificate: Buffer,
+  bridgeId: string | undefined,
+  selfSignedCertificate: Buffer | undefined,
 ): Promise<string> {
   return new Promise((resolve, reject) => {
+    const caCertificate = fs.readFileSync(path.join(environment.assetsPath, "huebridge_cacert.pem"));
     const request = https.request(
       {
         method: "POST",
         path: "/api",
         hostname: ipAddress,
         port: 443,
-        ca: certificate,
+        ca: caCertificate,
+        cert: selfSignedCertificate,
+        rejectUnauthorized: false,
         agent: new https.Agent({
           checkServerIdentity(_, peerCertificate) {
             validateBridgeCertificate(peerCertificate, bridgeId);
@@ -179,27 +185,26 @@ export async function getUsernameFromBridge(
 
 export function getCertificate(host: string, bridgeId?: string): Promise<PeerCertificate> {
   return new Promise((resolve, reject) => {
-    const socket = tls.connect(
-      {
-        host: host,
-        port: 443,
-        requestCert: true,
-        rejectUnauthorized: false,
-      },
-      () => {
-        console.log("Getting certificate from the Hue Bridge…");
-        socket.end();
-        const peerCertificate: PeerCertificate = socket.getPeerCertificate();
+    const socket = tls.connect({
+      host: host,
+      port: 443,
+      requestCert: true,
+      rejectUnauthorized: false,
+    });
 
-        try {
-          validateBridgeCertificate(peerCertificate, bridgeId);
-        } catch (error) {
-          return reject(error);
-        }
+    socket.on("secureConnect", () => {
+      console.log("Getting certificate from the Hue Bridge…");
+      socket.end();
+      const peerCertificate: PeerCertificate = socket.getPeerCertificate();
 
-        return resolve(peerCertificate);
-      },
-    );
+      try {
+        validateBridgeCertificate(peerCertificate, bridgeId);
+      } catch (error) {
+        return reject(error);
+      }
+
+      return resolve(peerCertificate);
+    });
 
     socket.on("error", (error) => {
       return reject(error);
