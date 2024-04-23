@@ -23,8 +23,7 @@ export type BridgeConfig = {
   ipAddress: string;
   id: string;
   username: string;
-  certificateType: "self-signed" | "signed-by-hue-bridge-root-ca";
-  certificate?: string;
+  selfSignedCertificate?: string;
 };
 
 export type HueBridgeMachineSnapshot = ReturnType<ReturnType<typeof hueBridgeMachine>["getInitialSnapshot"]>;
