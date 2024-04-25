@@ -35,7 +35,7 @@ export default async function createHueClient(
      * TLS is not permitted by RFC 6066.
      */
     const session = connect(`https://${bridgeConfig.id}`, {
-      ca: caCertificate,
+      ca: selfSignedCertificate ? selfSignedCertificate : caCertificate,
       cert: selfSignedCertificate, // Use the self-signed certificate if it exists
       checkServerIdentity: (hostname, cert) => {
         if (cert.subject.CN !== bridgeConfig.id) {
