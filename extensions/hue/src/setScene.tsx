@@ -47,7 +47,7 @@ export default function SetScene(props: { group?: Group; useHue?: ReturnType<typ
       >
         <Grid.Section title={group.metadata.name}>
           {groupScenes.map((groupScene) => (
-            <Scene
+            <SceneCard
               key={groupScene.id}
               scene={groupScene}
               group={group}
@@ -75,7 +75,7 @@ export default function SetScene(props: { group?: Group; useHue?: ReturnType<typ
                 .sort((sceneA, sceneB) => sceneA.metadata.name.localeCompare(sceneB.metadata.name)) ?? [];
 
             return (
-              <Group
+              <GroupCard
                 key={group.id}
                 group={group}
                 scenes={groupScenes}
@@ -91,7 +91,7 @@ export default function SetScene(props: { group?: Group; useHue?: ReturnType<typ
   }
 }
 
-function Group(props: {
+function GroupCard(props: {
   group: Group;
   scenes: Scene[];
   gradientUris: PngUriCache;
@@ -103,7 +103,7 @@ function Group(props: {
     <Grid.Section key={props.group.id} title={props.group.metadata.name}>
       {props.scenes.map(
         (scene: Scene): React.JSX.Element => (
-          <Scene
+          <SceneCard
             key={scene.id}
             group={props.group}
             scene={scene}
@@ -118,7 +118,7 @@ function Group(props: {
   );
 }
 
-function Scene(props: {
+function SceneCard(props: {
   scene: Scene;
   group: Group;
   gradientUri: PngUri | undefined;

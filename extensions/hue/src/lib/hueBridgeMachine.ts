@@ -1,4 +1,4 @@
-import { assign, fromCallback, fromPromise, setup } from "xstate";
+import { assign, fromPromise, setup } from "xstate";
 import { getPreferenceValues, LocalStorage, Toast } from "@raycast/api";
 import HueClient from "./HueClient";
 import { BridgeConfig, GroupedLight, Light, Room, Scene, Zone } from "./types";
@@ -93,17 +93,6 @@ export default function hueBridgeMachine(
 
       discoverBridgeUsingHuePublicApi: fromPromise(discoverBridgeUsingHuePublicApi),
 
-      handleInstantiatingHueClientFailure: fromCallback(({ input }: { input: { error: Error } }) => {
-        console.error(input.error);
-        new Toast({
-          style: Style.Failure,
-          title: "Failed to connect to bridge",
-          message: input.error.toString(),
-        })
-          .show()
-          .then();
-      }),
-
       linkWithBridge: fromPromise(
         async ({ input }: { input: { bridgeIpAddress?: string; bridgeId?: string; bridgeUsername?: string } }) => {
           if (input.bridgeIpAddress === undefined) throw Error("No bridge IP address");
@@ -125,17 +114,6 @@ export default function hueBridgeMachine(
         },
       ),
 
-      handleLinkWithBridgeFailure: fromCallback(({ input }: { input: { error: Error } }) => {
-        console.error(input.error);
-        new Toast({
-          style: Style.Failure,
-          title: "Failed to link with bridge",
-          message: input.error.toString(),
-        })
-          .show()
-          .then();
-      }),
-
       unlinkBridge: fromPromise(async () => {
         console.log("Unlinking (clearing configuration)…");
         await LocalStorage.clear();
@@ -147,10 +125,6 @@ export default function hueBridgeMachine(
           throw Error("Bridge configuration is undefined when trying to save it");
         }
         await LocalStorage.setItem(BRIDGE_CONFIG_KEY, JSON.stringify(input.bridgeConfig));
-      }),
-
-      logError: fromCallback(({ input }: { input: { error: Error } }) => {
-        console.error(input.error);
       }),
     },
   }).createMachine({
@@ -191,7 +165,7 @@ export default function hueBridgeMachine(
           },
           onError: {
             target: "failedToLoadPreferences",
-            actions: "logError",
+            actions: ({ event }) => console.error(event.error),
           },
         },
       },
@@ -237,7 +211,16 @@ export default function hueBridgeMachine(
             target: "connected",
           },
           onError: {
-            actions: "handleInstantiatingHueClientFailure",
+            actions: ({ event }) => {
+              console.error(event.error);
+              new Toast({
+                style: Style.Failure,
+                title: "Failed to connect to bridge",
+                message: event.error as string,
+              })
+                .show()
+                .then();
+            },
             target: "failedToConnect",
           },
         },
@@ -308,8 +291,8 @@ export default function hueBridgeMachine(
           ],
 
           onError: {
-            actions: "logError",
             target: "noBridgeFound",
+            actions: ({ event }) => console.error(event.error),
           },
         },
       },
@@ -347,8 +330,17 @@ export default function hueBridgeMachine(
             }),
           },
           onError: {
-            actions: "handleLinkWithBridgeFailure",
             target: "failedToLink",
+            actions: ({ event }) => {
+              console.error(event.error);
+              new Toast({
+                style: Style.Failure,
+                title: "Failed to link with bridge",
+                message: event.error as string,
+              })
+                .show()
+                .then();
+            },
           },
         },
       },
