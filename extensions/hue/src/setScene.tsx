@@ -53,7 +53,7 @@ export default function SetScene(props: { group?: Group; useHue?: ReturnType<typ
       >
         <Grid.Section title={group.metadata.name}>
           {groupSmartScenes.map((smartScene) => (
-            <SmartScene
+            <SmartSceneCard
               key={smartScene.id}
               smartScene={smartScene}
               group={group}
@@ -68,7 +68,7 @@ export default function SetScene(props: { group?: Group; useHue?: ReturnType<typ
             />
           ))}
           {groupScenes.map((groupScene) => (
-            <Scene
+            <SceneCard
               key={groupScene.id}
               scene={groupScene}
               group={group}
@@ -102,7 +102,7 @@ export default function SetScene(props: { group?: Group; useHue?: ReturnType<typ
                 ) ?? [];
 
             return (
-              <Group
+              <GroupCard
                 key={group.id}
                 group={group}
                 scenes={groupScenes}
@@ -119,7 +119,7 @@ export default function SetScene(props: { group?: Group; useHue?: ReturnType<typ
   }
 }
 
-function Group(props: {
+function GroupCard(props: {
   group: Group;
   scenes: Scene[];
   smartScenes: SmartScene[];
@@ -132,7 +132,7 @@ function Group(props: {
     <Grid.Section key={props.group.id} title={props.group.metadata.name}>
       {props.smartScenes.map(
         (smartScene: SmartScene): React.JSX.Element => (
-          <SmartScene
+          <SmartSceneCard
             key={smartScene.id}
             group={props.group}
             smartScene={smartScene}
@@ -145,7 +145,7 @@ function Group(props: {
       )}
       {props.scenes.map(
         (scene: Scene): React.JSX.Element => (
-          <Scene
+          <SceneCard
             key={scene.id}
             group={props.group}
             scene={scene}
@@ -160,7 +160,7 @@ function Group(props: {
   );
 }
 
-function SmartScene(props: {
+function SmartSceneCard(props: {
   smartScene: SmartScene;
   group: Group;
   gradientUri: PngUri | undefined;
@@ -197,7 +197,7 @@ function SetSmartSceneAction(props: { group: Group; smartScene: SmartScene; onSe
   return <Action title="Set Smart Scene" icon={Icon.Image} onAction={() => props.onSet()} />;
 }
 
-function Scene(props: {
+function SceneCard(props: {
   scene: Scene;
   group: Group;
   gradientUri: PngUri | undefined;

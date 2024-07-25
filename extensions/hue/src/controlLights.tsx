@@ -34,7 +34,7 @@ export default function ControlLights() {
     <Grid isLoading={isLoading || lightIconPngUriSets === null} filtering={{ keepSectionOrder: true }} columns={8}>
       {groups.map((group: Group) => {
         return (
-          <Group
+          <GroupCard
             key={group.id}
             group={group}
             lights={getLightsFromGroup(lights, group).sort((a, b) => a.metadata.name.localeCompare(b.metadata.name))}
@@ -48,7 +48,7 @@ export default function ControlLights() {
   );
 }
 
-function Group(props: {
+function GroupCard(props: {
   group: Group;
   lights: Light[];
   lightIconPngUriSets: Map<Id, PngUriLightIconSet> | null;
@@ -59,7 +59,7 @@ function Group(props: {
     <Grid.Section key={props.group.id} title={props.group.metadata.name}>
       {props.lights.map(
         (light: Light): React.JSX.Element => (
-          <Light
+          <LightCard
             key={light.id}
             light={light}
             group={props.group}
@@ -73,7 +73,7 @@ function Group(props: {
   );
 }
 
-function Light(props: {
+function LightCard(props: {
   light: Light;
   group?: Group;
   lightIconPngUriSet?: PngUriLightIconSet;
@@ -274,7 +274,7 @@ async function handleToggle(
     };
 
     const undoOptimisticUpdate = optimisticUpdate(light, changes, setLights);
-    await hueBridgeState.context.hueClient.updateLight(light, changes).catch((error) => {
+    await hueBridgeState.context.hueClient.updateLight(light, changes).catch((error: Error) => {
       undoOptimisticUpdate();
       throw error;
     });
@@ -310,7 +310,7 @@ async function handleSetBrightness(
     };
 
     const undoOptimisticUpdate = optimisticUpdate(light, changes, setLights);
-    await hueBridgeState.context.hueClient.updateLight(light, changes).catch((error) => {
+    await hueBridgeState.context.hueClient.updateLight(light, changes).catch((error: Error) => {
       undoOptimisticUpdate();
       throw error;
     });
@@ -352,7 +352,7 @@ async function handleBrightnessChange(
     };
 
     const undoOptimisticUpdate = optimisticUpdate(light, changes, setLights);
-    await hueBridgeState.context.hueClient.updateLight(light, changes).catch((error) => {
+    await hueBridgeState.context.hueClient.updateLight(light, changes).catch((error: Error) => {
       undoOptimisticUpdate();
       throw error;
     });
@@ -392,7 +392,7 @@ async function handleSetColor({ hueBridgeState, setLights }: ReturnType<typeof u
     };
 
     const undoOptimisticUpdate = optimisticUpdate(light, changes, setLights);
-    await hueBridgeState.context.hueClient.updateLight(light, changes).catch((error) => {
+    await hueBridgeState.context.hueClient.updateLight(light, changes).catch((error: Error) => {
       undoOptimisticUpdate();
       throw error;
     });
@@ -431,7 +431,7 @@ async function handleColorTemperatureChange(
     } as Partial<Light>;
 
     const undoOptimisticUpdate = optimisticUpdate(light, changes, setLights);
-    await hueBridgeState.context.hueClient.updateLight(light, changes).catch((error) => {
+    await hueBridgeState.context.hueClient.updateLight(light, changes).catch((error: Error) => {
       undoOptimisticUpdate();
       throw error;
     });

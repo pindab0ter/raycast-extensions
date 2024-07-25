@@ -63,7 +63,7 @@ export default function ControlGroups() {
               );
 
               return (
-                <Group
+                <GroupCard
                   key={room.id}
                   groupLights={groupLights}
                   groupedLight={groupedLight}
@@ -88,7 +88,7 @@ export default function ControlGroups() {
               );
 
               return (
-                <Group
+                <GroupCard
                   key={zone.id}
                   group={zone}
                   groupLights={groupLights}
@@ -105,7 +105,7 @@ export default function ControlGroups() {
   );
 }
 
-function Group(props: {
+function GroupCard(props: {
   groupLights: Light[];
   groupedLight?: GroupedLight;
   group: Group;
@@ -124,7 +124,7 @@ function Group(props: {
   }
 
   const content = props.groupedLight?.on?.on
-    ? props.gradientUri ?? ""
+    ? (props.gradientUri ?? "")
     : ({
         source: {
           light: "group-off.png",
