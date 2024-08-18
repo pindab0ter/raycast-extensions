@@ -24,9 +24,9 @@ export default async function createHueClient(
       : undefined;
 
     if (bridgeConfig.selfSignedCertificate !== undefined) {
-      console.log("Connecting to the Hue Bridge using its self-signed certificate…");
+      console.info("Connecting to the Hue Bridge using its self-signed certificate…");
     } else {
-      console.log("Connecting to the Hue Bridge, checking it’s certificate against the Hue Bridge root CA…");
+      console.info("Connecting to the Hue Bridge, checking it’s certificate against the Hue Bridge root CA…");
     }
 
     /*

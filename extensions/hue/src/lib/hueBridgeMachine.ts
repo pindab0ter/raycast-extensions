@@ -32,11 +32,11 @@ export default function hueBridgeMachine(
         }
 
         if (bridgeIpAddress && bridgeUsername) {
-          console.log("Using bridge IP address and username from preferences");
+          console.info("Using bridge IP address and username from preferences");
         } else if (bridgeIpAddress) {
-          console.log("Using bridge IP address from preferences");
+          console.info("Using bridge IP address from preferences");
         } else if (bridgeUsername) {
-          console.log("Using bridge username from preferences");
+          console.info("Using bridge username from preferences");
         }
 
         return {
@@ -51,7 +51,7 @@ export default function hueBridgeMachine(
         }: {
           input: { bridgeIpAddress?: string; bridgeUsername?: string };
         }): Promise<{ bridgeConfig?: BridgeConfig }> => {
-          console.log("Loading configuration…");
+          console.info("Loading configuration…");
           const bridgeConfigString = await LocalStorage.getItem<string>(BRIDGE_CONFIG_KEY);
           if (bridgeConfigString === undefined) {
             return { bridgeConfig: undefined };
@@ -97,7 +97,7 @@ export default function hueBridgeMachine(
         async ({ input }: { input: { bridgeIpAddress?: string; bridgeId?: string; bridgeUsername?: string } }) => {
           if (input.bridgeIpAddress === undefined) throw Error("No bridge IP address");
 
-          console.log("Linking with Hue Bridge…");
+          console.info("Linking with Hue Bridge…");
 
           const bridgeConfig = await getBridgeConfig(input.bridgeIpAddress, input.bridgeId, input.bridgeUsername);
 
@@ -115,12 +115,12 @@ export default function hueBridgeMachine(
       ),
 
       unlinkBridge: fromPromise(async () => {
-        console.log("Unlinking (clearing configuration)…");
+        console.info("Unlinking (clearing configuration)…");
         await LocalStorage.clear();
       }),
 
       saveBridgeConfigToLocalStorage: fromPromise(async ({ input }: { input: { bridgeConfig?: BridgeConfig } }) => {
-        console.log("Saving bridge configuration to local storage…");
+        console.info("Saving bridge configuration to local storage…");
         if (input.bridgeConfig === undefined) {
           throw Error("Bridge configuration is undefined when trying to save it");
         }

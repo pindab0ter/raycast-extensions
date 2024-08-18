@@ -193,7 +193,7 @@ export function getCertificate(host: string, bridgeId?: string): Promise<PeerCer
     });
 
     socket.on("secureConnect", () => {
-      console.log("Getting certificate from the Hue Bridge…");
+      console.info("Getting certificate from the Hue Bridge…");
       socket.end();
       const peerCertificate: PeerCertificate = socket.getPeerCertificate();
 
