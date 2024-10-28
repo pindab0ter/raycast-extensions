@@ -105,15 +105,6 @@ function validateBridgeCertificate(peerCertificate: PeerCertificate, bridgeId?: 
   const hasValidSelfSignedCertificate = peerCertificate.subject.CN === peerCertificate.issuer.CN;
   const isRootBridgeCertificate = peerCertificate.issuer.CN === "root-bridge";
 
-  console.debug(
-    `Validating certificate of Hue Bridge with ID ${bridgeId}:\n`,
-    `Subject CN is Bridge ID: ${subjectCnIsBridgeId}\n`,
-    `Has valid self-signed certificate: ${hasValidSelfSignedCertificate}\n`,
-    `Is root bridge certificate: ${isRootBridgeCertificate}\n`,
-    `Certificate subject: ${JSON.stringify(peerCertificate.subject)}\n`,
-    `Certificate issuer: ${JSON.stringify(peerCertificate.issuer)}`,
-  );
-
   if (!cnIsValidBridgeId) {
     throw new Error(`The CN of the certificate is not a valid Hue Bridge ID: ${peerCertificate.subject.CN}`);
   }

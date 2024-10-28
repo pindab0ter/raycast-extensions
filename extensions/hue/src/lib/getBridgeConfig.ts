@@ -11,16 +11,6 @@ export async function getBridgeConfig(
   const pemString = createPemString(bridgeCertificate);
   const selfSignedCertificate = isSelfSigned ? Buffer.from(pemString, "utf-8") : undefined;
 
-  console.debug(
-    `Getting bridge config for IP address ${bridgeIpAddress}:\n`,
-    `bridgeId: ${bridgeId}`,
-    `bridgeUsername: ${bridgeUsername}`,
-    `bridgeCertificate: ${JSON.stringify(bridgeCertificate)}`,
-    `isSelfSigned: ${isSelfSigned}`,
-    `pemString: ${pemString}`,
-    `selfSignedCertificate: ${selfSignedCertificate}`,
-  );
-
   return {
     ipAddress: bridgeIpAddress,
     username: bridgeUsername
