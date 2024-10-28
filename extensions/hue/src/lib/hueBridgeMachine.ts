@@ -1,4 +1,4 @@
-import { assign, fromPromise, setup } from "xstate";
+import { assign, DoneActorEvent, fromPromise, setup } from "xstate";
 import { getPreferenceValues, LocalStorage, Toast } from "@raycast/api";
 import HueClient from "./HueClient";
 import { BridgeConfig, GroupedLight, Light, Room, Scene, SmartScene, Zone } from "./types";
@@ -162,8 +162,16 @@ export default function hueBridgeMachine(
           onDone: {
             target: "loadingConfiguration",
             actions: assign({
-              bridgeIpAddress: ({ event }) => event.output.bridgeIpAddress,
-              bridgeUsername: ({ event }) => event.output.bridgeUsername,
+              bridgeIpAddress: ({
+                event,
+              }: {
+                event: DoneActorEvent<{ bridgeIpAddress: string; bridgeUsername: string }>;
+              }) => event.output.bridgeIpAddress,
+              bridgeUsername: ({
+                event,
+              }: {
+                event: DoneActorEvent<{ bridgeIpAddress: string; bridgeUsername: string }>;
+              }) => event.output.bridgeUsername,
             }),
           },
           onError: {
@@ -189,9 +197,11 @@ export default function hueBridgeMachine(
             {
               target: "connecting",
               actions: assign({
-                bridgeConfig: ({ event }) => event.output.bridgeConfig,
+                bridgeConfig: ({ event }: { event: DoneActorEvent<{ bridgeConfig?: BridgeConfig }> }) =>
+                  event.output.bridgeConfig,
               }),
-              guard: ({ event }) => event.output.bridgeConfig !== undefined,
+              guard: ({ event }: { event: DoneActorEvent<{ bridgeConfig?: BridgeConfig }> }) =>
+                event.output.bridgeConfig !== undefined,
             },
             {
               target: "linking",
@@ -210,7 +220,7 @@ export default function hueBridgeMachine(
           src: "instantiateHueClient",
           input: ({ context }) => ({ bridgeConfig: context.bridgeConfig }),
           onDone: {
-            actions: assign({ hueClient: ({ event }) => event.output }),
+            actions: assign({ hueClient: ({ event }: { event: DoneActorEvent<HueClient> }) => event.output }),
             target: "connected",
           },
           onError: {
@@ -251,16 +261,44 @@ export default function hueBridgeMachine(
             {
               target: "linking",
               actions: assign({
-                bridgeIpAddress: ({ event }) => event.output.ipAddress,
-                bridgeId: ({ event }) => event.output.id,
+                bridgeIpAddress: ({
+                  event,
+                }: {
+                  event: DoneActorEvent<{
+                    ipAddress: string;
+                    id: string;
+                  }>;
+                }) => event.output.ipAddress,
+                bridgeId: ({
+                  event,
+                }: {
+                  event: DoneActorEvent<{
+                    ipAddress: string;
+                    id: string;
+                  }>;
+                }) => event.output.id,
               }),
               guard: ({ context }) => !!context.bridgeUsername,
             },
             {
               target: "linkWithBridge",
               actions: assign({
-                bridgeIpAddress: ({ event }) => event.output.ipAddress,
-                bridgeId: ({ event }) => event.output.id,
+                bridgeIpAddress: ({
+                  event,
+                }: {
+                  event: DoneActorEvent<{
+                    ipAddress: string;
+                    id: string;
+                  }>;
+                }) => event.output.ipAddress,
+                bridgeId: ({
+                  event,
+                }: {
+                  event: DoneActorEvent<{
+                    ipAddress: string;
+                    id: string;
+                  }>;
+                }) => event.output.id,
               }),
             },
           ],
@@ -279,15 +317,17 @@ export default function hueBridgeMachine(
             {
               target: "linking",
               actions: assign({
-                bridgeIpAddress: ({ event }) => event.output.ipAddress,
-                bridgeId: ({ event }) => event.output.id,
+                bridgeIpAddress: ({ event }: { event: DoneActorEvent<{ ipAddress: string; id: string }> }) =>
+                  event.output.ipAddress,
+                bridgeId: ({ event }: { event: DoneActorEvent<{ ipAddress: string; id: string }> }) => event.output.id,
               }),
               guard: ({ context }) => !!context.bridgeUsername,
             },
             {
               actions: assign({
-                bridgeIpAddress: ({ event }) => event.output.ipAddress,
-                bridgeId: ({ event }) => event.output.id,
+                bridgeIpAddress: ({ event }: { event: DoneActorEvent<{ ipAddress: string; id: string }> }) =>
+                  event.output.ipAddress,
+                bridgeId: ({ event }: { event: DoneActorEvent<{ ipAddress: string; id: string }> }) => event.output.id,
               }),
               target: "linkWithBridge",
             },
@@ -328,8 +368,22 @@ export default function hueBridgeMachine(
           onDone: {
             target: "linked",
             actions: assign({
-              bridgeConfig: ({ event }) => event.output.bridgeConfig,
-              hueClient: ({ event }) => event.output.hueClient,
+              bridgeConfig: ({
+                event,
+              }: {
+                event: DoneActorEvent<{
+                  bridgeConfig: BridgeConfig;
+                  hueClient: HueClient;
+                }>;
+              }) => event.output.bridgeConfig,
+              hueClient: ({
+                event,
+              }: {
+                event: DoneActorEvent<{
+                  bridgeConfig: BridgeConfig;
+                  hueClient: HueClient;
+                }>;
+              }) => event.output.hueClient,
             }),
           },
           onError: {
